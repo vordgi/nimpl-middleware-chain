@@ -1,0 +1,36 @@
+{
+  "name": "@nimpl/middleware-chain",
+  "version": "0.1.0",
+  "description": "",
+  "main": "./dist/chain.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "next",
+    "next.js",
+    "middleware",
+    "edge"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vordgi/nimpl-middleware-chain.git"
+  },
+  "author": {
+    "name": "Savelyev Alexander",
+    "email": "vordgi1@gmail.com",
+    "url": "https://github.com/vordgi/"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "next": "14.2.3",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "next": ">= 14.0.0",
+    "react": ">= 18.2.0"
+  }
+}
