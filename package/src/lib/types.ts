@@ -1,6 +1,7 @@
 import { type ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { type NextURL } from "next/dist/server/web/next-url";
-import { type NextRequest, type NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { FinalNextResponse, FinalSymbol } from "./final-next-response";
 
 export type NextType = "rewrite" | "redirect" | "json" | "none" | undefined;
 
@@ -18,6 +19,8 @@ export interface ChainNextRequest extends NextRequest {
     summary: Readonly<Summary>;
 }
 
-export type MiddlewareResult = NextResponse | Response | void | undefined | null | Promise<MiddlewareResult>;
+export type ChainNextResponse = FinalNextResponse | (NextResponse & { [FinalSymbol]?: undefined });
+
+export type MiddlewareResult = ChainNextResponse | Response | void | undefined | null | Promise<MiddlewareResult>;
 
 export type Middleware = (req: ChainNextRequest) => MiddlewareResult;
