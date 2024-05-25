@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { type Middleware, type Summary } from "./types";
-import { FinalNextResponse } from "./final-next-response";
+import { type ChainNextResponse, type Middleware, type Summary } from "./types";
+import { FinalSymbol } from "./final-next-response";
 import { INTERNAL_HEADERS } from "./constants";
 
 export const collectData = async (req: NextRequest, middlewares: Middleware[]) => {
@@ -18,7 +18,7 @@ export const collectData = async (req: NextRequest, middlewares: Middleware[]) =
 
         if (!middlewareNext) continue;
 
-        let next: NextResponse;
+        let next: ChainNextResponse;
         if (middlewareNext instanceof NextResponse) {
             next = middlewareNext;
         } else if (middlewareNext instanceof Response) {
@@ -82,7 +82,7 @@ export const collectData = async (req: NextRequest, middlewares: Middleware[]) =
                 summary.headers.set(key, value);
             }
         });
-        if (next instanceof FinalNextResponse) break;
+        if (next[FinalSymbol]) break;
     }
 
     return summary;
