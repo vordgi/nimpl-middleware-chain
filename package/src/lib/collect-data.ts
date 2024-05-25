@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { type Middleware, type Summary } from "./types";
 import { FinalNextResponse } from "./final-next-response";
 import { INTERNAL_HEADERS } from "./constants";
@@ -14,9 +14,18 @@ export const collectData = async (req: NextRequest, middlewares: Middleware[]) =
     };
 
     for await (const middleware of middlewares) {
-        const next = await middleware(Object.assign(req, { summary: Object.freeze({ ...summary }) }));
+        const middlewareNext = await middleware(Object.assign(req, { summary: Object.freeze({ ...summary }) }));
 
-        if (!next) continue;
+        if (!middlewareNext) continue;
+
+        let next: NextResponse;
+        if (middlewareNext instanceof NextResponse) {
+            next = middlewareNext;
+        } else if (middlewareNext instanceof Response) {
+            next = new NextResponse(middlewareNext.body, middlewareNext);
+        } else {
+            throw new Error("Invalid middleware response");
+        }
 
         if (next.headers.has("Location")) {
             const destination = next.headers.get("Location") as string;

@@ -18,4 +18,6 @@ export interface ChainNextRequest extends NextRequest {
     summary: Readonly<Summary>;
 }
 
-export type Middleware = (req: ChainNextRequest) => Promise<NextResponse | void | undefined | null>;
+export type MiddlewareResult = NextResponse | Response | void | undefined | null | Promise<MiddlewareResult>;
+
+export type Middleware = (req: ChainNextRequest) => MiddlewareResult;
