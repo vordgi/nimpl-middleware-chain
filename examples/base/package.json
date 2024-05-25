@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nimpl/middleware-chain": "file:..\\..\\package\\nimpl-middleware-chain-0.1.0.tgz",
+    "@nimpl/middleware-chain": "0.1.2",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18"
