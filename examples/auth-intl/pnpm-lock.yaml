@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@nimpl/middleware-chain':
-    specifier: 0.1.2
-    version: 0.1.2(next@14.2.3)(react@18.3.1)
+    specifier: 0.2.0
+    version: 0.2.0(next@14.2.3)(react@18.3.1)
   next:
     specifier: 14.2.3
     version: 14.2.3(react-dom@18.3.1)(react@18.3.1)
@@ -179,8 +179,8 @@ packages:
     dev: false
     optional: true
 
-  /@nimpl/middleware-chain@0.1.2(next@14.2.3)(react@18.3.1):
-    resolution: {integrity: sha512-UInQsML8yP3Be1oCCLDTiGNpIvb46BPg7nQZUFBsJxNAg9FDDYapbhdWzScZo+XeoKlZ2S51/1ew0SU8ehfzVw==}
+  /@nimpl/middleware-chain@0.2.0(next@14.2.3)(react@18.3.1):
+    resolution: {integrity: sha512-SBs3Qy1QJ/sku9AZBROkkm54vkRgq5RHgCkGt8ZBmd/vNC1xyz5sCW2gouW1y498P5GJE7vLC1aMNbLdALwMTQ==}
     peerDependencies:
       next: '>= 14.0.0'
       react: '>= 18.2.0'
