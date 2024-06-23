@@ -1,6 +1,7 @@
 import { default as nextAuth } from "next-auth/middleware";
 import createMiddleware from "next-intl/middleware";
-import { chain, FinalNextResponse } from "@nimpl/middleware-chain";
+import { chain } from "@nimpl/middleware-chain";
+import { NextResponse } from "next/server";
 
 const intlMiddleware = createMiddleware({
     locales: ["en", "dk"],
@@ -9,8 +10,10 @@ const intlMiddleware = createMiddleware({
 
 export default chain([
     [intlMiddleware, { exclude: /^\/private(\/.*)?$/ }],
-    (req) => {
-        if (req.summary.type === "redirect") return FinalNextResponse.next();
+    () => {
+        const next = new NextResponse();
+        next.cookies.set("custom-cookie", Date.now().toString());
+        return next;
     },
     [nextAuth, { include: /^\/private(\/.*)?$/ }],
 ]);
