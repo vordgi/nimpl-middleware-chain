@@ -8,11 +8,11 @@ const intlMiddleware = createMiddleware({
 });
 
 export default chain([
-    intlMiddleware,
+    [intlMiddleware, { exclude: /^\/private(\/.*)?$/ }],
     (req) => {
         if (req.summary.type === "redirect") return FinalNextResponse.next();
     },
-    nextAuth,
+    [nextAuth, { include: /^\/private(\/.*)?$/ }],
 ]);
 
 export const config = {
