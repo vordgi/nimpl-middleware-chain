@@ -1,9 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { type ChainNextResponse, type Middleware, type Summary } from "./types";
+import { ChainItem, Middleware, type ChainNextResponse, type Summary } from "./types";
 import { FinalSymbol } from "./final-next-response";
 import { INTERNAL_HEADERS } from "./constants";
 
-export const collectData = async (req: NextRequest, middlewares: Middleware[]) => {
+export const collectData = async (req: NextRequest, chainItems: ChainItem[]) => {
     const summary: Summary = {
         type: "none",
         destination: req.nextUrl,
@@ -13,7 +13,21 @@ export const collectData = async (req: NextRequest, middlewares: Middleware[]) =
         body: undefined,
     };
 
-    for await (const middleware of middlewares) {
+    for await (const chainItem of chainItems) {
+        let middleware: Middleware;
+        if (Array.isArray(chainItem)) {
+            const [itemMiddleware, itemRules] = chainItem;
+            if (
+                itemRules &&
+                ((itemRules.include && !itemRules.include?.test(req.nextUrl.pathname)) ||
+                    itemRules.exclude?.test(req.nextUrl.pathname))
+            ) {
+                continue;
+            }
+            middleware = itemMiddleware;
+        } else {
+            middleware = chainItem;
+        }
         const middlewareNext = await middleware(Object.assign(req, { summary: Object.freeze({ ...summary }) }));
 
         if (!middlewareNext) continue;

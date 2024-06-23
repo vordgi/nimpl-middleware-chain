@@ -24,3 +24,5 @@ export type ChainNextResponse = FinalNextResponse | (NextResponse & { [FinalSymb
 export type MiddlewareResult = ChainNextResponse | Response | void | undefined | null | Promise<MiddlewareResult>;
 
 export type Middleware = (req: ChainNextRequest) => MiddlewareResult;
+
+export type ChainItem = Middleware | [Middleware, { include?: RegExp; exclude?: RegExp }?];
