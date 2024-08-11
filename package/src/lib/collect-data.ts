@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
-import { ChainItem, Middleware, type ChainNextResponse, type Summary } from "./types";
+import { type Logger } from "./logger";
+import { type ChainItem, type Middleware, type ChainNextResponse, type Summary } from "./types";
 import { FinalSymbol } from "./final-next-response";
 import { INTERNAL_HEADERS } from "./constants";
 
-export const collectData = async (req: NextRequest, event: NextFetchEvent, chainItems: ChainItem[]) => {
+export const collectData = async (req: NextRequest, event: NextFetchEvent, chainItems: ChainItem[], logger: Logger) => {
     const summary: Summary = {
         type: "none",
         destination: req.nextUrl,
@@ -44,11 +45,11 @@ export const collectData = async (req: NextRequest, event: NextFetchEvent, chain
         if (next.headers.has("Location")) {
             const destination = next.headers.get("Location") as string;
             if (summary.destination !== destination || summary.type === "rewrite") {
-                console.log(
+                logger.log(
                     `Changing destination between middlewares: ${summary.destination} (${summary.type}) -> ${destination} (redirect)`,
                 );
             } else if (summary.type === "json") {
-                console.log(`Changing response type between middlewares: json -> redirect`);
+                logger.log(`Changing response type between middlewares: json -> redirect`);
             }
             Object.assign(summary, {
                 type: "redirect",
@@ -60,11 +61,11 @@ export const collectData = async (req: NextRequest, event: NextFetchEvent, chain
         } else if (next.headers.has("x-middleware-rewrite")) {
             const destination = next.headers.get("x-middleware-rewrite") as string;
             if (summary.destination !== destination || summary.type === "redirect") {
-                console.log(
+                logger.log(
                     `Changing destination between middlewares: ${summary.destination} (${summary.type}) -> ${destination} (rewrite)`,
                 );
             } else if (summary.type === "json") {
-                console.log(`Changing response type between middlewares: json -> rewrite`);
+                logger.log(`Changing response type between middlewares: json -> rewrite`);
             }
             Object.assign(summary, {
                 type: "rewrite",
@@ -75,9 +76,9 @@ export const collectData = async (req: NextRequest, event: NextFetchEvent, chain
             });
         } else if (next.body) {
             if (summary.type === "json") {
-                console.log(`Changing body between middlewares`);
+                logger.log(`Changing body between middlewares`);
             } else {
-                console.log(`Changing response type between middlewares: ${summary.type} -> json`);
+                logger.log(`Changing response type between middlewares: ${summary.type} -> json`);
             }
             Object.assign(summary, {
                 type: "custom",
