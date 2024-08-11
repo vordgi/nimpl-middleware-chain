@@ -1,7 +1,8 @@
 import { type ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { type NextURL } from "next/dist/server/web/next-url";
-import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
-import { FinalNextResponse, FinalSymbol } from "./final-next-response";
+import { type NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
+import { type FinalNextResponse, type FinalSymbol } from "./final-next-response";
+import { type Logger } from "./logger";
 
 export type NextType = "rewrite" | "redirect" | "json" | "none" | undefined;
 
@@ -26,3 +27,7 @@ export type MiddlewareResult = ChainNextResponse | Response | void | undefined |
 export type Middleware = (req: ChainNextRequest, event: NextFetchEvent) => MiddlewareResult;
 
 export type ChainItem = Middleware | [Middleware, { include?: RegExp; exclude?: RegExp }?];
+
+export type ChainConfig = {
+    logger?: Logger | boolean | null;
+};
