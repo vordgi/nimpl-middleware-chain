@@ -1,10 +1,15 @@
-import { NextResponse, type NextRequest, type NextFetchEvent } from "next/server";
+import { NextResponse, type NextFetchEvent } from "next/server";
 import { type Logger } from "./logger";
-import { type ChainItem, type Middleware, type ChainNextResponse, type Summary } from "./types";
+import { type ChainItem, type Middleware, type ChainNextResponse, type Summary, type BaseRequest } from "./types";
 import { FinalSymbol } from "./final-next-response";
 import { INTERNAL_HEADERS } from "./constants";
 
-export const collectData = async (req: NextRequest, event: NextFetchEvent, chainItems: ChainItem[], logger: Logger) => {
+export const collectData = async <RequestType extends BaseRequest, ResponseType extends Response>(
+    req: RequestType,
+    event: NextFetchEvent,
+    chainItems: ChainItem<RequestType, ResponseType>[],
+    logger: Logger,
+) => {
     const summary: Summary = {
         type: "none",
         destination: req.nextUrl,
@@ -15,7 +20,7 @@ export const collectData = async (req: NextRequest, event: NextFetchEvent, chain
     };
 
     for await (const chainItem of chainItems) {
-        let middleware: Middleware;
+        let middleware: Middleware<RequestType, ResponseType>;
         if (Array.isArray(chainItem)) {
             const [itemMiddleware, itemRules] = chainItem;
             if (
@@ -33,7 +38,7 @@ export const collectData = async (req: NextRequest, event: NextFetchEvent, chain
 
         if (!middlewareNext) continue;
 
-        let next: ChainNextResponse;
+        let next: ChainNextResponse<ResponseType>;
         if (middlewareNext instanceof NextResponse) {
             next = middlewareNext;
         } else if (middlewareNext instanceof Response) {
