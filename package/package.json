@@ -2,12 +2,20 @@
   "name": "@nimpl/proxy-chain",
   "version": "1.0.0",
   "description": "Create a chain of native Next.js proxies seamlessly, without changing any existing proxy code",
+  "type": "module",
   "main": "./dist/chain.js",
+  "types": "./dist/chain.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/chain.d.ts",
+      "import": "./dist/chain.js"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsup"
   },
   "keywords": [
     "next",
@@ -33,6 +41,7 @@
   "license": "MIT",
   "devDependencies": {
     "next": "16.1.1",
+    "tsup": "8.5.1",
     "typescript": "5.9.3"
   },
   "peerDependencies": {

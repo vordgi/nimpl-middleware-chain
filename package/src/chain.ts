@@ -23,6 +23,7 @@ export const chain =
             event,
             middlewares,
             logger,
+            config?.breakOnTypes,
         );
         const next = formatResponse(summary);
 

@@ -71,6 +71,7 @@ This is not Koa and not Express, this is a package for next.js, in its unique st
 - [Base example](https://github.com/alexdln/nimpl-proxy-chain/tree/main/examples/base).
 - [next-auth + next-intl example](https://github.com/alexdln/nimpl-proxy-chain/tree/main/examples/auth-intl).
 - [next-auth5 + next-intl example](https://github.com/alexdln/nimpl-proxy-chain/tree/main/examples/auth5-intl).
+- [Custom auth](https://github.com/alexdln/nimpl-proxy-chain/tree/main/examples/basic-auth).
 
 ## Development
 

@@ -7,9 +7,10 @@ import { type FINAL_SYMBOL } from "./constants";
 
 export type BaseRequest = {
     nextUrl: URL;
+    headers: Headers;
 };
 
-export type NextType = "rewrite" | "redirect" | "json" | "none" | undefined;
+export type NextType = "rewrite" | "redirect" | "none" | "custom" | undefined;
 
 export type Summary = {
     type: NextType;
@@ -54,4 +55,5 @@ export type ChainItem<
 
 export type ChainConfig = {
     logger?: Logger | boolean | null;
+    breakOnTypes?: Exclude<NextType, "none" | undefined>[];
 };

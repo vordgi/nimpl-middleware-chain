@@ -1,6 +1,13 @@
 import { NextResponse, type NextFetchEvent } from "next/server";
 
-import { type ChainItem, type Middleware, type ChainNextResponse, type Summary, type BaseRequest } from "./types";
+import {
+    type ChainItem,
+    type Middleware,
+    type ChainNextResponse,
+    type Summary,
+    type BaseRequest,
+    type NextType,
+} from "./types";
 import { type Logger } from "./logger";
 import { INTERNAL_HEADERS, FINAL_SYMBOL, REWRITE_HEADER, REDIRECT_HEADER } from "./constants";
 
@@ -13,13 +20,14 @@ export const collectData = async <
     event: NextFetchEventType,
     chainItems: ChainItem<RequestType, ResponseType, NextFetchEventType>[],
     logger: Logger,
+    breakOnTypes: Exclude<NextType, "none" | undefined>[] = [],
 ) => {
     const summary: Summary = {
         type: "none",
         destination: req.nextUrl,
         cookies: new Map(),
         headers: new Headers(),
-        requestHeaders: new Headers(),
+        requestHeaders: new Headers(req.headers),
         status: 200,
         body: undefined,
     };
@@ -58,55 +66,64 @@ export const collectData = async <
                 logger.log(
                     `Changing destination between middlewares: ${summary.destination} (${summary.type}) -> ${destination} (redirect)`,
                 );
-            } else if (summary.type === "json") {
-                logger.log(`Changing response type between middlewares: json -> redirect`);
+            } else if (summary.type !== "redirect") {
+                logger.log(`Changing response type between middlewares: ${summary.type} -> redirect`);
             }
             Object.assign(summary, {
                 type: "redirect",
                 destination,
                 status: next.status,
-                statusText: summary.statusText,
+                statusText: next.statusText || summary.statusText,
                 body: undefined,
             });
+            if (breakOnTypes.includes("redirect")) next[FINAL_SYMBOL] = true;
         } else if (next.headers.has(REWRITE_HEADER)) {
             const destination = next.headers.get(REWRITE_HEADER) as string;
             if (summary.destination !== destination || summary.type === "redirect") {
                 logger.log(
                     `Changing destination between middlewares: ${summary.destination} (${summary.type}) -> ${destination} (rewrite)`,
                 );
-            } else if (summary.type === "json") {
-                logger.log(`Changing response type between middlewares: json -> rewrite`);
+            } else if (summary.type !== "rewrite") {
+                logger.log(`Changing response type between middlewares: ${summary.type} -> rewrite`);
             }
             Object.assign(summary, {
                 type: "rewrite",
                 destination,
                 status: next.status,
-                statusText: summary.statusText,
+                statusText: next.statusText || summary.statusText,
                 body: undefined,
             });
+            if (breakOnTypes.includes("rewrite")) next[FINAL_SYMBOL] = true;
         } else if (next.body) {
-            if (summary.type === "json") {
-                logger.log(`Changing body between middlewares`);
+            if (summary.type === "custom") {
+                logger.log("Changing body between middlewares");
             } else {
-                logger.log(`Changing response type between middlewares: ${summary.type} -> json`);
+                logger.log(`Changing response type between middlewares: ${summary.type} -> custom`);
             }
             Object.assign(summary, {
                 type: "custom",
                 destination: undefined,
                 status: next.status,
-                statusText: summary.statusText,
+                statusText: next.statusText || summary.statusText,
                 body: next.body,
             });
+            if (breakOnTypes.includes("custom")) next[FINAL_SYMBOL] = true;
         }
 
         next.cookies.getAll().forEach((cookie) => {
             summary.cookies.set(cookie.name, cookie);
         });
         next.headers.forEach((value, key) => {
-            if (INTERNAL_HEADERS.includes(key.toLowerCase())) return;
+            const lowerKey = key.toLowerCase();
+            if (INTERNAL_HEADERS.includes(lowerKey)) return;
 
-            if (key.toLowerCase().startsWith("x-middleware-request-")) {
-                summary.requestHeaders.set(key.replace("x-middleware-request-", ""), value);
+            if (lowerKey.startsWith("x-middleware-request-")) {
+                summary.requestHeaders.set(lowerKey.replace("x-middleware-request-", ""), value);
+                return;
+            }
+
+            if (lowerKey === "set-cookie") {
+                summary.headers.append(key, value);
                 return;
             }
 
